@@ -1,0 +1,6 @@
+ecommerce_dbt:
+  outputs:
+    dev:
+      type: duckdb
+      path: /Users/sjbang/ecommerce_pipeline/ecommerce.duckdb
+  target: dev

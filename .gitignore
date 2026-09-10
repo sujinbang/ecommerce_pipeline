@@ -1,0 +1,13 @@
+.DS_Store
+*.duckdb
+raw_data/
+logs/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+dbt/target/
+airflow/*.db
+airflow/*.db-shm
+airflow/*.db-wal
+airflow/*.json.generated
