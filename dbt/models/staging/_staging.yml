@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: 주문 원본의 날짜 포맷과 금액 이상치를 정제한 스테이징 모델
+    columns:
+      - name: order_id
+        description: 주문 고유 식별자
+        data_tests:
+          - unique
+          - not_null
+      - name: user_id
+        data_tests:
+          - not_null
+      - name: order_time
+        description: |
+          파싱 불가한 원본 포맷은 TRY_CAST 결과가 NULL이 된다.
+          집계 대상에서 제외되므로 유입 자체를 warn으로 감지한다.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: amount
+        description: 결측/음수를 0으로 수렴시킨 결제 금액
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['COMPLETED', 'REFUNDED', 'FAILED', 'PENDING', 'UNKNOWN_STATUS']
+
+  - name: stg_user_logs
+    description: 유저 행동 로그의 device 정보를 추출한 스테이징 모델
+    columns:
+      - name: log_id
+        data_tests:
+          - unique
+          - not_null
+      - name: user_id
+        data_tests:
+          - not_null
+      - name: event_name
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['login', 'view_item', 'add_to_cart', 'checkout']
+      - name: device
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['iOS', 'Android', 'Web', 'Unknown']

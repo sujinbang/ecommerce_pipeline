@@ -1,14 +1,14 @@
 {{ config(materialized='view') }}
 
 WITH raw AS (
-    SELECT * FROM main.raw_user_logs
+    SELECT * FROM {{ source('raw', 'raw_user_logs') }}
 )
 
 SELECT
     log_id,
     user_id,
-    event_time,
+    TRY_CAST(event_time AS TIMESTAMP) AS event_time,
     event_name,
-    -- JSON 안의 struct에서 device 정보만 추출. (만약 event_properties 전체가 누락된 경우 'Unknown'으로 처리)
+    -- event_properties 자체가 누락된 행이 있어 struct 접근 전 COALESCE로 방어
     COALESCE(event_properties.device, 'Unknown') AS device
 FROM raw

@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: int_daily_checkout_device
+    description: |
+      checkout 로그를 user_id + 일자 그레인으로 축약한 중간 모델.
+      이 축약이 mart_daily_revenue의 fan-out 중복 집계를 구조적으로 차단한다.
+
+      아래 unique_combination_of_columns는 "user-day 당 1행"이라는 그레인 계약을 명시하는
+      테스트다. 이 모델이 GROUP BY로 생성되므로 데이터만으로는 실패하지 않지만,
+      이후 누군가 GROUP BY를 수정하거나 그레인을 바꾸면 즉시 잡힌다.
+      실제 매출 오차 탐지는 tests/assert_mart_revenue_matches_source.sql이 담당한다.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - user_id
+              - event_date
+    columns:
+      - name: user_id
+        data_tests:
+          - not_null
+      - name: event_date
+        data_tests:
+          - not_null
+      - name: device
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['iOS', 'Android', 'Web', 'Unknown']
+      - name: checkout_count
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true

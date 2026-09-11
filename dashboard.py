@@ -1,6 +1,12 @@
+import os
+from pathlib import Path
+
 import streamlit as st
 import duckdb
 import plotly.express as px
+
+BASE_DIR = Path(__file__).resolve().parent
+DUCKDB_PATH = Path(os.environ.get("DUCKDB_PATH", BASE_DIR / "ecommerce.duckdb"))
 
 # 페이지 기본 설정
 st.set_page_config(page_title="이커머스 주간 현황", layout="wide")
@@ -12,7 +18,7 @@ st.write("Airflow와 dbt가 만들어낸 `mart_daily_revenue` 테이블을 시�
 @st.cache_data
 def load_data():
     # 읽기 전용으로 열어서 Airflow와 충돌 방지
-    con = duckdb.connect('ecommerce.duckdb', read_only=True)
+    con = duckdb.connect(str(DUCKDB_PATH), read_only=True)
     df = con.execute("SELECT * FROM mart_daily_revenue ORDER BY order_date").fetchdf()
     con.close()
     return df

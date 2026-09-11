@@ -2,5 +2,8 @@ ecommerce_dbt:
   outputs:
     dev:
       type: duckdb
-      path: /Users/sjbang/ecommerce_pipeline/ecommerce.duckdb
+      # 절대경로 하드코딩을 제거. DUCKDB_PATH가 없으면 dbt 프로젝트 상위의 파일을 사용한다.
+      path: "{{ env_var('DUCKDB_PATH', '../ecommerce.duckdb') }}"
+      # DuckDB는 파일 하나에 쓰기 커넥션이 하나만 붙으므로 병렬 실행을 막는다.
+      threads: 1
   target: dev

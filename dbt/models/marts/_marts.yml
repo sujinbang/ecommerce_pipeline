@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: mart_daily_revenue
+    description: |
+      일자 + 기기별 매출/주문 집계 마트. 증분(incremental) 모델이며
+      lookback_days만큼의 최근 구간을 delete+insert로 교체한다.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_date
+              - device
+      # 매출/주문 집계를 원본과 직접 대조한다. fan-out 등 집계 오차를 원인과 무관하게 탐지.
+      - reconciles_with_stg_orders
+    columns:
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: device
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['iOS', 'Android', 'Web', 'Unknown']
+      - name: total_orders
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: total_revenue
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

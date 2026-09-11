@@ -1,9 +1,16 @@
 import csv
 import json
+import os
 import random
 from datetime import datetime, timedelta
+from pathlib import Path
+
+# raw_data/는 .gitignore 대상이라 clone 직후 존재하지 않는다. 실행 시 생성한다.
+BASE_DIR = Path(__file__).resolve().parent
+RAW_DATA_DIR = Path(os.environ.get("RAW_DATA_DIR", BASE_DIR / "raw_data"))
 
 def generate_data():
+    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
     # 100명의 가상 유저
     users = [f"U{str(i).zfill(4)}" for i in range(1, 101)]
     statuses = ["COMPLETED", "COMPLETED", "COMPLETED", "REFUNDED", "FAILED", "PENDING", "UNKNOWN_STATUS"]
@@ -11,7 +18,7 @@ def generate_data():
     base_time = datetime(2023, 10, 1)
 
     print("생성 중: orders.csv (주문 데이터 - 결측치 및 포맷 불일치 포함)...")
-    with open('raw_data/orders.csv', 'w', newline='') as f:
+    with open(RAW_DATA_DIR / 'orders.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['order_id', 'user_id', 'order_timestamp', 'amount', 'status'])
         
@@ -38,7 +45,7 @@ def generate_data():
     events = ["login", "view_item", "add_to_cart", "checkout"]
     devices = ["iOS", "Android", "Web"]
     
-    with open('raw_data/user_logs.jsonl', 'w') as f:
+    with open(RAW_DATA_DIR / 'user_logs.jsonl', 'w') as f:
         for i in range(1, 1001):
             user_id = random.choice(users)
             event = random.choice(events)
