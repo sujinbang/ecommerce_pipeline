@@ -1,5 +1,6 @@
 # 이커머스 ELT 데이터 파이프라인
 
+## 📌 Summary & Key Features
 클라우드 비용 없이 로컬에서 **Modern Data Stack**(DuckDB + dbt + Airflow)을 구성한 프로젝트입니다.
 단순 실행에 그치지 않고, **집계 정합성 검증과 증분 처리**를 파이프라인에 편성했습니다.
 
@@ -31,7 +32,7 @@ make airflow    # Airflow standalone (http://localhost:8080)
 | intermediate | `int_daily_checkout_device` | checkout 로그를 **user-day 그레인으로 축약** |
 | marts | `mart_daily_revenue` | 일자 + 기기별 매출/주문 집계 (**증분 모델**) |
 
-## 이 프로젝트에서 실제로 해결한 문제
+## 🛠️ TroubleShooting & Deep Dive
 
 ### 1. 조인 fan-out으로 인한 매출 과대계상
 
